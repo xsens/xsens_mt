@@ -42,7 +42,7 @@ static const struct usb_device_id id_table[] = {
 };
 MODULE_DEVICE_TABLE(usb, id_table);
 
-int xsens_mt_attach(struct usb_serial *serial);
+static int xsens_mt_attach(struct usb_serial *serial);
 
 static struct usb_serial_driver xsens_mt_device = {
 	.driver = {
@@ -63,7 +63,7 @@ static struct usb_serial_driver * const serial_drivers[] = {
 
 module_usb_serial_driver(serial_drivers, id_table);
 
-int xsens_mt_attach(struct usb_serial *serial)
+static int xsens_mt_attach(struct usb_serial *serial)
 {
 	if ((serial->num_bulk_in == 0) ||
 	    (serial->num_bulk_out == 0)) {
