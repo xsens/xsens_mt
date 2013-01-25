@@ -64,7 +64,7 @@ static struct usb_serial_driver xsens_mt_device = {
 };
 
 static struct usb_serial_driver * const serial_drivers[] = {
-    &xsens_mt_device, NULL
+	&xsens_mt_device, NULL
 };
 
 module_usb_serial_driver(serial_drivers, id_table);
