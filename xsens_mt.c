@@ -42,7 +42,13 @@ static const struct usb_device_id id_table[] = {
 };
 MODULE_DEVICE_TABLE(usb, id_table);
 
-static int xsens_mt_attach(struct usb_serial *serial);
+static int xsens_mt_attach(struct usb_serial *serial)
+{
+	if ((serial->num_bulk_in == 0) || (serial->num_bulk_out == 0))
+		return -ENODEV;
+
+	return 0;
+}
 
 static struct usb_serial_driver xsens_mt_device = {
 	.driver = {
@@ -62,21 +68,5 @@ static struct usb_serial_driver * const serial_drivers[] = {
 };
 
 module_usb_serial_driver(serial_drivers, id_table);
-
-static int xsens_mt_attach(struct usb_serial *serial)
-{
-	if ((serial->num_bulk_in == 0) ||
-	    (serial->num_bulk_out == 0)) {
-		dev_err(&serial->dev->dev,
-			"%s - missing endpoint - "
-			"bulk in: %d, bulk out: %d\n",
-			KBUILD_MODNAME,
-			serial->num_bulk_in,
-			serial->num_bulk_out);
-		return -EINVAL;
-	}
-
-	return 0;
-}
 
 MODULE_LICENSE("GPL");
