@@ -82,6 +82,15 @@ static struct usb_serial_driver * const serial_drivers[] = {
 	&xsens_mt_device, NULL
 };
 
-module_usb_serial_driver(serial_drivers, id_table);
+static int __init usb_serial_driver_init(void)
+{
+	return usb_serial_register_drivers(serial_drivers, KBUILD_MODNAME, id_table);
+}
+module_init(usb_serial_driver_init);
+static void __exit usb_serial_module_exit(void)
+{
+	usb_serial_deregister_drivers(serial_drivers);
+}
+module_exit(usb_serial_module_exit);
 
 MODULE_LICENSE("GPL");
