@@ -65,11 +65,20 @@ static int xsens_mt_probe(struct usb_serial *serial, const struct usb_device_id 
 	return 0;
 }
 
+static struct usb_driver xsens_mt_driver = {
+        .name           = "xsens_mt",
+        .probe          = usb_serial_probe,
+        .disconnect     = usb_serial_disconnect,
+        .id_table       = id_table,
+        .no_dynamic_id  =       1,
+};
+
 static struct usb_serial_driver xsens_mt_device = {
 	.driver = {
 		.owner = THIS_MODULE,
 		.name = "xsens_mt",
 	},
+	.usb_driver = &xsens_mt_driver,
 	.id_table = id_table,
 	.num_ports = 1,
 	.bulk_in_size = 512,
@@ -78,18 +87,29 @@ static struct usb_serial_driver xsens_mt_device = {
 	.probe = xsens_mt_probe,
 };
 
-static struct usb_serial_driver * const serial_drivers[] = {
-	&xsens_mt_device, NULL
-};
 
 static int __init usb_serial_driver_init(void)
 {
-	return usb_serial_register_drivers(serial_drivers, KBUILD_MODNAME, id_table);
+        int retval;
+
+	retval = usb_serial_register(&xsens_mt_device);
+        if (retval)
+                goto failed_usb_serial_register;
+        retval = usb_register(&xsens_mt_driver);
+        if (retval)
+                goto failed_usb_register;
+	printk(KERN_INFO "Driver for XSens MTi\n");
+        return retval;
+failed_usb_register:
+        usb_serial_deregister(&xsens_mt_device);
+failed_usb_serial_register:
+        return retval;
 }
 module_init(usb_serial_driver_init);
 static void __exit usb_serial_module_exit(void)
 {
-	usb_serial_deregister_drivers(serial_drivers);
+	usb_deregister(&xsens_mt_driver);
+	usb_serial_deregister(&xsens_mt_device);
 }
 module_exit(usb_serial_module_exit);
 
